@@ -1,7 +1,11 @@
 package com.example.ekalips.vitya;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -33,9 +37,11 @@ import com.example.ekalips.vitya.db.TaskDBHelper;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.zip.Inflater;
 
 
@@ -144,6 +150,9 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
         final Spinner spinner1 = (Spinner) view.findViewById(R.id.spinner);
         final EditText taskEditText = (EditText) view.findViewById(R.id.edit_text_to_do_alert);
 
+
+
+
         spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -156,19 +165,30 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                     {
                         final DateFormat dateFormat = new SimpleDateFormat("MMM dd,yyyy", Locale.US);
                         final DatePicker picker = new DatePicker(getContext());
-                        AlertDialog dialog = new AlertDialog.Builder(getContext()).
-                                setTitle("Select date").
-                                setView(picker).
-                                setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        date.setDate(picker.getDayOfMonth());
-                                        date.setMonth(picker.getMonth());
-                                        date.setYear(picker.getYear());
-                                        spinner1.setPrompt(dateFormat.format(date));
-                                    }
-                                }).setNegativeButton("Cancel", null)
-                                .create();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("Select date");
+                        builder.setView(picker);
+                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                date.setDate(picker.getDayOfMonth());
+                                date.setMonth(picker.getMonth());
+                                date.setYear(picker.getYear() - 1900);
+                                if (Calendar.getInstance().getTime().compareTo(date) > 0) {
+                                    Toast.makeText(getContext(), "WRONG DATE", Toast.LENGTH_LONG).show();
+                                    spinner1.setSelection(0,true);
+                                    Log.d("Date", "WRONG DATE");
+                                    date.setDate(Calendar.getInstance().getTime().getDay());
+                                    date.setMonth(Calendar.getInstance().getTime().getMonth());
+                                    date.setYear(Calendar.getInstance().getTime().getYear() - 1900);
+                                    return;
+                                }
+                                spinner1.setPrompt(dateFormat.format(date));
+
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", null);
+                        AlertDialog dialog = builder.create();
                         dialog.show();
 
                     }
@@ -189,6 +209,7 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (position)
                 {
+
                     case 0: {
                         date.setHours(new Date().getHours());
                         date.setMinutes(new Date().getMinutes()+5);
@@ -220,6 +241,13 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                                         date.setMinutes(picker.getCurrentMinute());
                                         date.setHours(picker.getCurrentHour());
                                         date.setSeconds(0);
+                                        if (Calendar.getInstance().getTime().compareTo(date) > 0)
+                                        {
+                                            Toast.makeText(getContext(),"WRONG TIME",Toast.LENGTH_LONG).show();
+                                            date.setMinutes(Calendar.getInstance().getTime().getMinutes());
+                                            date.setHours(Calendar.getInstance().getTime().getHours());
+                                            spinner2.setSelection(0,true);
+                                        }
                                         spinner2.setPrompt(dateFormat.format(date));
                                     }
                                 }).setNegativeButton("Cancel", null)
@@ -264,6 +292,10 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                         if(switch1.isChecked())
                         {
                             values.put(TaskContract.TaskEntry.COL_TASK_DATE, date.toString());
+                            Intent intent = createIntent("Alarm:" + task, task + ";" + date.toString());
+                            PendingIntent pendIntent = PendingIntent.getBroadcast(getContext(), new Random().nextInt(),intent, 0);
+                            AlarmManager am = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                            am.set(AlarmManager.RTC_WAKEUP,date.getTime(), pendIntent);
                         }
                         else {
                             values.put(TaskContract.TaskEntry.COL_TASK_DATE, "");
@@ -286,7 +318,12 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
         return taskEditText;
     }
 
-
+    Intent createIntent(String action, String extra) {
+        Intent intent = new Intent(getContext(),Receiver.class);
+        intent.setAction(action);
+        intent.putExtra("extra", extra);
+        return intent;
+    }
 
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
