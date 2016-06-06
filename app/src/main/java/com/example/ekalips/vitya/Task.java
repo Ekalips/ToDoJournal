@@ -14,13 +14,14 @@ public class Task
 
     public String Task;
     public int id;
-    public Task(String _date, String _task, int _id)
+    public String idAlarm;
+    public Task(String _date, String _task, int _id, String anInt)
     {
-        Date = _date; Task = _task; id = _id;
+        Date = _date; Task = _task; id = _id; idAlarm = anInt;
     }
     @Override
     public String toString()
     {
-        return  "ID: " + id + "  Task: " + Task + " Date: " + Date.toString();
+        return  "ID: " + id + "  Task: " + Task + " Date: " + Date + " AlarmID: " + idAlarm;
     }
 }

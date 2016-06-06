@@ -23,7 +23,8 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         String createTable = "CREATE TABLE " + TaskContract.TaskEntry.TABLE + " ( " +
                 TaskContract.TaskEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 TaskContract.TaskEntry.COL_TASK_TITLE + " TEXT NOT NULL," +
-                TaskContract.TaskEntry.COL_TASK_DATE + " TEXT);";
+                TaskContract.TaskEntry.COL_TASK_DATE + " TEXT," +
+                TaskContract.TaskEntry.COL_TASK_ALARM_ID + " TEXT );";
 
         db.execSQL(createTable);
     }
@@ -31,15 +32,25 @@ public class TaskDBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TaskContract.TaskEntry.TABLE);
+        Log.d("DATABASE", "RECREATING");
         onCreate(db);
     }
 
-    public void createIfNotExist()
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVer, int newVer)
     {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + TaskContract.TaskEntry.TABLE + " ( " +
+        db.execSQL("DROP TABLE IF EXISTS " + TaskContract.TaskEntry.TABLE);
+        Log.d("DATABASE", "RECREATING");
+        onCreate(db);
+    }
+
+    public void createIfNotExist() {
+        String createTable = "CREATE TABLE IF NOT EXISTS" + TaskContract.TaskEntry.TABLE + " ( " +
                 TaskContract.TaskEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 TaskContract.TaskEntry.COL_TASK_TITLE + " TEXT NOT NULL," +
-                TaskContract.TaskEntry.COL_TASK_DATE + " TEXT);";
+                TaskContract.TaskEntry.COL_TASK_DATE + " TEXT," +
+                TaskContract.TaskEntry.COL_TASK_ALARM_ID + " TEXT );";
+
         getWritableDatabase().execSQL(createTable);
     }
 

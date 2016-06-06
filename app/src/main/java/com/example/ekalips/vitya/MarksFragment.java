@@ -52,11 +52,11 @@ RecyclerView recyclerView;
         for (Subject s :
                 subjects) {
             //Log.d("marks", SQLiteHelper.GetSubjMarksByID(getContext(),PrefsHandler.getInt("ID",-1,getContext()),s.SubjID).toString());
-            JSONArray temp = SQLiteHelper.GetSubjMarksByID(PrefsHandler.getInt("ID",-1,getContext()),s.SubjID);
+            JSONArray temp = SQLiteHelper.GetSubjMarksByID(PrefsHandler.getInt("ID",-1,getContext()),s.SubjID,getContext());
             for (int i = 0;i < temp.length();i++)
             {
 
-                    s.Marks.add(temp.getJSONObject(i).getInt("Mark"));
+                    s.Marks.add(new Mark(temp.getJSONObject(i).getInt("Mark"),temp.getJSONObject(i).getString("Date"),temp.getJSONObject(i).getString("Theme")));
 
             }
         }

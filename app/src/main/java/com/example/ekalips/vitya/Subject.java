@@ -9,7 +9,7 @@ import java.util.List;
 public class Subject {
     int SubjID;
     String SubjName;
-    List<Integer> Marks = new ArrayList<Integer>();
+    List<Mark> Marks = new ArrayList<Mark>();
 
     public Subject(String SubjName,int SubjID){ this.SubjID = SubjID;this.SubjName = SubjName;}
 }

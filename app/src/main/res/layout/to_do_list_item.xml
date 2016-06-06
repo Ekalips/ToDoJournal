@@ -2,22 +2,33 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:autofit="http://schemas.android.com/apk/res-auto"
     android:id="@+id/to_do_card_view"
+    android:minHeight="60dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
 
     android:layout_margin="8dp">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="match_parent"
+            android:layout_marginBottom="8dp"
             android:background="?android:attr/activatedBackgroundIndicator">
-        <TextView
+
+        <me.grantland.widget.AutofitTextView
             android:background="?android:attr/activatedBackgroundIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:maxLines="8"
+            autofit:sizeToFit="true"
+            android:textSize="40sp"
+            autofit:minTextSize="16sp"
             android:id="@+id/to_do_text_view_item"/>
 
 
@@ -28,12 +39,15 @@
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:maxLines="1"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/to_do_text_view_item"
+            android:layout_alignParentBottom="true"
             android:background="@drawable/reminder_label_background"
             android:id="@+id/remind_textView"
             android:gravity="center"
-            />
+            android:layout_alignParentRight="true" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </android.support.v7.widget.CardView>

@@ -45,7 +45,7 @@ import java.util.List;
             holder.nameTextView.setText(subject.SubjName);
 
             holder.marksList.setLayoutManager(new LinearLayoutManager(null,LinearLayoutManager.HORIZONTAL,false));
-            holder.marksList.setAdapter(new InnerMarksAdapter(subject.Marks));
+            holder.marksList.setAdapter(new InnerMarksAdapter(subject.Marks,holder.itemView.getContext()));
         }
 
         @Override

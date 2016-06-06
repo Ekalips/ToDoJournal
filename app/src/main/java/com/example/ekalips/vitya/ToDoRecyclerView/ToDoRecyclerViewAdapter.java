@@ -4,17 +4,21 @@ package com.example.ekalips.vitya.ToDoRecyclerView;
  * Created by ekalips on 5/28/16.
  */
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.v4.view.MotionEventCompat;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -28,6 +32,7 @@ import java.util.List;
 import com.example.ekalips.vitya.MainActivity;
 import com.example.ekalips.vitya.R;
 import com.example.ekalips.vitya.Task;
+import com.example.ekalips.vitya.ToDoFragment;
 import com.example.ekalips.vitya.db.TaskDBHelper;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
@@ -143,6 +148,57 @@ public class ToDoRecyclerViewAdapter extends
                         selectedTasks.add(mSubjects.get(position));
 
                     }
+                    else {
+
+                        ConstraintLayout view = (ConstraintLayout) parentActivity.getLayoutInflater().inflate(R.layout.to_do_detailed_item,null);
+                        TextView textView = (TextView) view.findViewById(R.id.detailed_to_do);
+                        ImageButton button = (ImageButton) view.findViewById(R.id.detailed_to_do_alarm_button);
+                        TextView alarmLabel = (TextView) view.findViewById(R.id.detailed_to_do_alarm_label);
+                        TextView alarmDate = (TextView) view.findViewById(R.id.detailed_to_do_alarm_time);
+                        ImageButton button1 = (ImageButton) view.findViewById(R.id.detailed_to_do_alarm_cancel);
+                        textView.setText(mSubjects.get(position).Task);
+
+                        final AlertDialog dialog = new AlertDialog.Builder(parentActivity)
+                                .setView(view).setPositiveButton("Ok", null).create();
+                        if(mSubjects.get(position).Date.equals(""))
+                        {
+                            button.setVisibility(View.VISIBLE);
+                            alarmLabel.setVisibility(View.VISIBLE);
+                            alarmDate.setVisibility(View.GONE);
+                            button1.setVisibility(View.GONE);
+                            button.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                }
+                            });
+                        }
+                        else
+                        {
+                            DateFormat dateFormat = new SimpleDateFormat("MMM dd,yyyy, HH:MM", Locale.US);
+                            button.setVisibility(View.GONE);
+                            alarmLabel.setVisibility(View.GONE);
+                            alarmDate.setVisibility(View.VISIBLE);
+                            button1.setVisibility(View.VISIBLE);
+                            alarmDate.setText(dateFormat.format(new Date(mSubjects.get(position).Date)));
+                            button1.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent("Alarm:" + subject.idAlarm);
+                                    intent.putExtra("extra",subject.Task + ";" + subject.Date);
+                                    PendingIntent pendIntent = PendingIntent.getBroadcast(holder.itemView.getContext(), Integer.parseInt(subject.idAlarm), intent, 0);
+                                    //pendIntent.cancel();
+                                    AlarmManager alarmManager = (AlarmManager) parentActivity.getSystemService(Context.ALARM_SERVICE);
+                                    alarmManager.cancel(pendIntent);
+                                    Log.d("Alarms","CANCELED");
+                                    dialog.cancel();
+
+                                }
+                            });
+                        }
+
+                        dialog.show();
+                    }
                     if (haveDelete && selectedTasks.size() == 0) {parentActivity.floatingActionsMenu.removeButton(button); haveDelete = false;
                         parentActivity.floatingActionsMenu.collapse();}
 
@@ -245,7 +301,6 @@ public class ToDoRecyclerViewAdapter extends
         public boolean selected;
         public TextView reminderTextView;
         public CardView cardView;
-        public LinearLayout selectionLayout;
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
         public ViewHolder(View itemView) {

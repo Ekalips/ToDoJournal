@@ -2,6 +2,7 @@ package com.example.ekalips.vitya;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,12 +22,13 @@ import java.util.List;
 public class InnerMarksAdapter extends
         RecyclerView.Adapter<InnerMarksAdapter.ViewHolder> {
 
-    private List<Integer> mSubjects;
-
+    private List<Mark> mSubjects;
+    Context context;
     // Pass in the contact array into the constructor
-    public InnerMarksAdapter(List<Integer> subjects) {
+    public InnerMarksAdapter(List<Mark> subjects, Context context) {
         mSubjects = subjects;
         Log.d("mSubjects",subjects.toString());
+        this.context = context;
     }
 
     @Override
@@ -42,11 +44,21 @@ public class InnerMarksAdapter extends
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        int mark = mSubjects.get(position);
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        int mark = mSubjects.get(position).mark;
         holder.markTextView.setText(String.valueOf(mark));
         if (mark < 3) holder.markTextView.setTextColor(Color.RED);
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context).
+                        setTitle("Mark: " + mSubjects.get(position).mark).
+                        setMessage("Theme: " + mSubjects.get(position).theme + "\nDate: " + mSubjects.get(position).date)
+                        .setPositiveButton("Ok",null);
+                builder.create().show();
+            }
+        });
     }
 
     @Override

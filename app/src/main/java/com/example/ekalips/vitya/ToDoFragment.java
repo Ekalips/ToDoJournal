@@ -111,18 +111,29 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
 
     public void getTasks()
     {
-        try {
+        //try{
             Tasks = new ArrayList<>();
             mHelper = new TaskDBHelper(getContext());
             SQLiteDatabase db = mHelper.getReadableDatabase();
+
+            Log.d("kek", SQLiteHelper.getResults("SELECT sql FROM sqlite_master WHERE tbl_name = 'tasks' AND type = 'table'",db).toString());
             Cursor cursor = db.query(TaskContract.TaskEntry.TABLE,
-                    new String[]{TaskContract.TaskEntry._ID, TaskContract.TaskEntry.COL_TASK_TITLE, TaskContract.TaskEntry.COL_TASK_DATE},
+                    new String[]{TaskContract.TaskEntry._ID,
+                            TaskContract.TaskEntry.COL_TASK_TITLE,
+                            TaskContract.TaskEntry.COL_TASK_DATE,
+                            TaskContract.TaskEntry.COL_TASK_ALARM_ID},
                     null, null, null, null, null);
             while (cursor.moveToNext()) {
                 int idD = cursor.getColumnIndex(TaskContract.TaskEntry.COL_TASK_DATE);
                 int idT = cursor.getColumnIndex(TaskContract.TaskEntry.COL_TASK_TITLE);
                 int idI = cursor.getColumnIndex(TaskContract.TaskEntry._ID);
-                Tasks.add(new Task(cursor.getString(idD), cursor.getString(idT), Integer.valueOf(cursor.getString(idI))));
+                int idA = cursor.getColumnIndex(TaskContract.TaskEntry.COL_TASK_ALARM_ID);
+                Tasks.add(new Task(
+                        cursor.getString(idD),
+                        cursor.getString(idT),
+                        Integer.valueOf(cursor.getString(idI)),
+                        cursor.getString(idA))
+                );
             }
             cursor.close();
             db.close();
@@ -134,16 +145,18 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                     Tasks) {
                 Log.d("Tasks", a.toString());
             }
-        }
-        catch (Exception ex)
-        {
-            Toast.makeText(getContext(),"Creating list",Toast.LENGTH_SHORT).show();
-            mHelper.createIfNotExist();
-        }
+
+//        }
+//        catch (Exception ex)
+//        {
+//            Toast.makeText(getContext(),"Creating list",Toast.LENGTH_SHORT).show();
+//            ex.printStackTrace();
+//            mHelper.createIfNotExist();
+//        }
     }
 
 
-    public EditText createEditTextAlert() {
+    public void createEditTextAlert() {
         final Date date = new Date();
         ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.to_do_alert_dialog, null);
         final Switch switch1 = (Switch) view.findViewById(R.id.switch1);
@@ -165,6 +178,7 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                     {
                         final DateFormat dateFormat = new SimpleDateFormat("MMM dd,yyyy", Locale.US);
                         final DatePicker picker = new DatePicker(getContext());
+                        picker.setMinDate(System.currentTimeMillis() - 1000);
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setTitle("Select date");
                         builder.setView(picker);
@@ -232,6 +246,7 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                     {
                         final DateFormat dateFormat = new SimpleDateFormat("HH:MM", Locale.US);
                         final TimePicker picker = new TimePicker(getContext());
+                        picker.setIs24HourView(true);
                         AlertDialog dialog = new AlertDialog.Builder(getContext()).
                                 setTitle("Select date").
                                 setView(picker).
@@ -292,13 +307,16 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                         if(switch1.isChecked())
                         {
                             values.put(TaskContract.TaskEntry.COL_TASK_DATE, date.toString());
-                            Intent intent = createIntent("Alarm:" + task, task + ";" + date.toString());
-                            PendingIntent pendIntent = PendingIntent.getBroadcast(getContext(), new Random().nextInt(),intent, 0);
+                            int a =  new Random().nextInt(Integer.SIZE - 1);
+                            Intent intent = createIntent("Alarm:" + a, task + ";" + date.toString());
+                            PendingIntent pendIntent = PendingIntent.getBroadcast(getContext(), a,intent, 0);
                             AlarmManager am = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
                             am.set(AlarmManager.RTC_WAKEUP,date.getTime(), pendIntent);
+                            values.put(TaskContract.TaskEntry.COL_TASK_ALARM_ID, String.valueOf(a));
                         }
                         else {
                             values.put(TaskContract.TaskEntry.COL_TASK_DATE, "");
+                            values.put(TaskContract.TaskEntry.COL_TASK_ALARM_ID, "");
                         }
 
                         //db.replace(TaskContract.TaskEntry.TABLE,)
@@ -315,10 +333,9 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
                 .setNegativeButton("Cancel", null)
                 .create();
         dialog.show();
-        return taskEditText;
     }
 
-    Intent createIntent(String action, String extra) {
+     Intent createIntent(String action, String extra) {
         Intent intent = new Intent(getContext(),Receiver.class);
         intent.setAction(action);
         intent.putExtra("extra", extra);
