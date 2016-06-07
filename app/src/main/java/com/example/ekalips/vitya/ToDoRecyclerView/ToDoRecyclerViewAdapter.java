@@ -70,6 +70,9 @@ public class ToDoRecyclerViewAdapter extends
                     helper.deleteFromTable(t.id);
                     deleteItem(t);
                 }
+                for (Task t:
+                        mSubjects)
+
                 parentActivity.floatingActionsMenu.removeButton(button);
                 haveDelete = false;
             }
@@ -260,6 +263,12 @@ public class ToDoRecyclerViewAdapter extends
 
 
 
+
+    public void updateData(List<Task> tasks)
+    {
+        mSubjects = new ArrayList<>(tasks);
+        notifyDataSetChanged();
+    }
 
     public void addItem(Task task) {
         mSubjects.add(task);

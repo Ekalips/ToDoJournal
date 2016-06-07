@@ -1,6 +1,7 @@
 package com.example.ekalips.vitya;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -56,6 +57,14 @@ public class InnerMarksAdapter extends
                         setTitle("Mark: " + mSubjects.get(position).mark).
                         setMessage("Theme: " + mSubjects.get(position).theme + "\nDate: " + mSubjects.get(position).date)
                         .setPositiveButton("Ok",null);
+                if (mSubjects.get(position).mark <= 3) {
+                    builder.setNeutralButton("Set reminder", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                }
                 builder.create().show();
             }
         });

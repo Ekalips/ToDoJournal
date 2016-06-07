@@ -1,36 +1,46 @@
 package com.example.ekalips.vitya;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 
+import com.example.ekalips.vitya.db.TaskContract;
+import com.example.ekalips.vitya.db.TaskDBHelper;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
@@ -38,25 +48,21 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResource;
-import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -69,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ViewPager viewPager;
     private Context context;
     GoogleApiClient mGoogleApiClient;
+    TaskDBHelper mHelper;
+    ViewPagerAdapter viewPagerAdapter;
     public FloatingActionsMenu floatingActionsMenu;
     private DriveId mFileId;
     String ling = "0BxkYJF0YZNHbX1dXZ1ZFZldCVVU";
@@ -88,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
+        mHelper = new TaskDBHelper(this);
 
 
         floatingActionsMenu = (FloatingActionsMenu) findViewById(R.id.right_labels);
@@ -98,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         floatingActionButtonToDo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toDoFragment.createEditTextAlert();
+                createEditTextAlert();
                 floatingActionsMenu.collapse();
             }
         });
@@ -115,15 +123,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     {
 
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         toDoFragment = new ToDoFragment();
-        adapter.addFragment(toDoFragment, "ToDo");
-        adapter.addFragment(new MarksFragment(), "Marks");
+
+        viewPagerAdapter.addFragment(toDoFragment, "ToDo");
+        viewPagerAdapter.addFragment(new MarksFragment(), "Marks");
         if (SQLiteHelper.CheckForBadMarks(PrefsHandler.getInt("ID",-1,this),this).length() > 0)
         {
-            adapter.addFragment(new BadMarksFragment(), "Bad marks");
+            viewPagerAdapter.addFragment(new BadMarksFragment(), "Bad marks");
         }
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(viewPagerAdapter);
 
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -271,9 +280,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     File file = new File(Environment.getExternalStorageDirectory(), "SECRETDOCUMENTS");
                     copyInputStreamToFile(contents.getInputStream(),file);
                     PrefsHandler.setString("Journal",file.getAbsolutePath(),context);
-                    SetupViewPager(viewPager);
+                    if (viewPagerAdapter==null) {SetupViewPager(viewPager);tabLayout.setupWithViewPager(viewPager);}
 
-                    tabLayout.setupWithViewPager(viewPager);
+
                 }
             };
 
@@ -340,6 +349,191 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             //mProgressBar.setProgress(progress);
         }
     };
+
+
+    public void createEditTextAlert() {
+        final Date date = new Date();
+        ConstraintLayout view = (ConstraintLayout) getLayoutInflater().inflate(R.layout.to_do_alert_dialog, null);
+        final Switch switch1 = (Switch) view.findViewById(R.id.switch1);
+        final Spinner spinner1 = (Spinner) view.findViewById(R.id.spinner);
+        final EditText taskEditText = (EditText) view.findViewById(R.id.edit_text_to_do_alert);
+
+
+
+
+        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position)
+                {
+                    case 0: break;
+                    case 1: date.setDate(date.getDay()+1);break;
+                    case 2: date.setDate(date.getDay()+3);break;
+                    case 3:
+                    {
+                        final DateFormat dateFormat = new SimpleDateFormat("MMM dd,yyyy", Locale.US);
+                        final DatePicker picker = new DatePicker(context);
+                        picker.setMinDate(System.currentTimeMillis() - 1000);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setTitle("Select date");
+                        builder.setView(picker);
+                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                date.setDate(picker.getDayOfMonth());
+                                date.setMonth(picker.getMonth());
+                                date.setYear(picker.getYear() - 1900);
+                                if (Calendar.getInstance().getTime().compareTo(date) > 0) {
+                                    Toast.makeText(context, "WRONG DATE", Toast.LENGTH_LONG).show();
+                                    spinner1.setSelection(0,true);
+                                    Log.d("Date", "WRONG DATE");
+                                    date.setDate(Calendar.getInstance().getTime().getDay());
+                                    date.setMonth(Calendar.getInstance().getTime().getMonth());
+                                    date.setYear(Calendar.getInstance().getTime().getYear() - 1900);
+                                    return;
+                                }
+                                spinner1.setPrompt(dateFormat.format(date));
+
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", null);
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+
+                    }
+                    default:break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        final Spinner spinner2 = (Spinner) view.findViewById(R.id.spinner2);
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position)
+                {
+
+                    case 0: {
+                        date.setHours(new Date().getHours());
+                        date.setMinutes(new Date().getMinutes()+5);
+                        date.setSeconds(new Date().getSeconds());
+                        break;
+                    }
+                    case 1: {
+                        date.setHours(new Date().getHours());
+                        date.setMinutes(new Date().getMinutes()+3);
+                        date.setSeconds(new Date().getSeconds());
+                        break;
+                    }
+                    case 2: {
+                        date.setHours(new Date().getHours()+3);
+                        date.setMinutes(new Date().getMinutes());
+                        date.setSeconds(new Date().getSeconds());
+                        break;
+                    }
+                    case 3:
+                    {
+                        final DateFormat dateFormat = new SimpleDateFormat("HH:MM", Locale.US);
+                        final TimePicker picker = new TimePicker(context);
+                        picker.setIs24HourView(true);
+                        AlertDialog dialog = new AlertDialog.Builder(context).
+                                setTitle("Select date").
+                                setView(picker).
+                                setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        date.setMinutes(picker.getCurrentMinute());
+                                        date.setHours(picker.getCurrentHour());
+                                        date.setSeconds(0);
+                                        if (Calendar.getInstance().getTime().compareTo(date) > 0)
+                                        {
+                                            Toast.makeText(context,"WRONG TIME",Toast.LENGTH_LONG).show();
+                                            date.setMinutes(Calendar.getInstance().getTime().getMinutes());
+                                            date.setHours(Calendar.getInstance().getTime().getHours());
+                                            spinner2.setSelection(0,true);
+                                        }
+                                        spinner2.setPrompt(dateFormat.format(date));
+                                    }
+                                }).setNegativeButton("Cancel", null)
+                                .create();
+                        dialog.show();
+                    }
+                    default:break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    spinner1.setVisibility(View.VISIBLE);
+                    spinner2.setVisibility(View.VISIBLE);
+                } else {
+                    spinner1.setVisibility(View.GONE);
+                    spinner2.setVisibility(View.GONE);
+                }
+            }
+        });
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Add a new task")
+                .setMessage("What do you want to do next?")
+                .setView(view)
+                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String task = String.valueOf(taskEditText.getText());
+                        Log.d("TASK", "Task to add: " + task);
+
+                        SQLiteDatabase db = mHelper.getWritableDatabase();
+                        ContentValues values = new ContentValues();
+                        values.put(TaskContract.TaskEntry.COL_TASK_TITLE, task);
+                        if(switch1.isChecked())
+                        {
+                            values.put(TaskContract.TaskEntry.COL_TASK_DATE, date.toString());
+                            int a =  new Random().nextInt(Integer.SIZE - 1);
+                            Intent intent = createIntent("Alarm:" + a, task + ";" + date.toString());
+                            PendingIntent pendIntent = PendingIntent.getBroadcast(context, a,intent, 0);
+                            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                            am.set(AlarmManager.RTC_WAKEUP,date.getTime(), pendIntent);
+                            values.put(TaskContract.TaskEntry.COL_TASK_ALARM_ID, String.valueOf(a));
+                        }
+                        else {
+                            values.put(TaskContract.TaskEntry.COL_TASK_DATE, "");
+                            values.put(TaskContract.TaskEntry.COL_TASK_ALARM_ID, "");
+                        }
+
+                        //db.replace(TaskContract.TaskEntry.TABLE,)
+                        db.insertWithOnConflict(TaskContract.TaskEntry.TABLE,
+                                null,
+                                values,
+                                SQLiteDatabase.CONFLICT_REPLACE);
+                        //db.replace(TaskContract.TaskEntry.TABLE,null, values);
+                        db.close();
+                        toDoFragment.getTasks(mHelper.getReadableDatabase());
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.show();
+    }
+
+    Intent createIntent(String action, String extra) {
+        Intent intent = new Intent(context,Receiver.class);
+        intent.setAction(action);
+        intent.putExtra("extra", extra);
+        return intent;
+    }
+
+
 
     private class ViewPagerAdapter extends FragmentPagerAdapter
     {
