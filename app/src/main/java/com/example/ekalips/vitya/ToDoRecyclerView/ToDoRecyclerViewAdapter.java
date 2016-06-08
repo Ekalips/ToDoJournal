@@ -70,10 +70,9 @@ public class ToDoRecyclerViewAdapter extends
                     helper.deleteFromTable(t.id);
                     deleteItem(t);
                 }
-                for (Task t:
-                        mSubjects)
 
                 parentActivity.floatingActionsMenu.removeButton(button);
+                parentActivity.floatingActionsMenu.collapse();
                 haveDelete = false;
             }
         });
@@ -97,12 +96,12 @@ public class ToDoRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        final Task subject = mSubjects.get(position);
+        final Task subject = mSubjects.get(holder.getAdapterPosition());
         holder.nameTextView.setText(subject.Task);
 
 
 
-        if (mSubjects.get(position).Date.equals("")) {
+        if (mSubjects.get(holder.getAdapterPosition()).Date.equals("")) {
             holder.reminderTextView.setVisibility(View.GONE);
 
 
@@ -110,8 +109,9 @@ public class ToDoRecyclerViewAdapter extends
 
             holder.reminderTextView.setVisibility(View.VISIBLE);
             holder.nameTextView.setTypeface(null, Typeface.BOLD_ITALIC);
-            DateFormat dateFormat = new SimpleDateFormat("MMM dd,yyyy, HH:MM", Locale.US);
-            holder.reminderTextView.setText(dateFormat.format(new Date(mSubjects.get(position).Date)));
+            DateFormat dateFormat = new SimpleDateFormat("MMM dd,yyyy, HH:MM",Locale.getDefault());
+           // holder.reminderTextView.setText(dateFormat.format(new Date(mSubjects.get(holder.getAdapterPosition()).Date.trim())));
+            holder.reminderTextView.setText(mSubjects.get(holder.getAdapterPosition()).Date);
         }
 
 
@@ -121,7 +121,7 @@ public class ToDoRecyclerViewAdapter extends
                 public boolean onLongClick(View v) {
                     //holder.cardView.setSelected(true);
                     holder.selected = true;
-                    selectedTasks.add(mSubjects.get(position));
+                    selectedTasks.add(mSubjects.get(holder.getAdapterPosition()));
 
                     if (!haveDelete) {parentActivity.floatingActionsMenu.addButton(button); haveDelete =true;
                     parentActivity.floatingActionsMenu.expand();}
@@ -139,7 +139,7 @@ public class ToDoRecyclerViewAdapter extends
                     {
                         holder.onItemClear();
                         holder.selected = false;
-                        selectedTasks.remove(mSubjects.get(position));
+                        selectedTasks.remove(mSubjects.get(holder.getAdapterPosition()));
 
                     }
 
@@ -148,7 +148,7 @@ public class ToDoRecyclerViewAdapter extends
                         holder.onItemSelected();
                         holder.selected = true;
                         holder.itemView.setSelected(true);
-                        selectedTasks.add(mSubjects.get(position));
+                        selectedTasks.add(mSubjects.get(holder.getAdapterPosition()));
 
                     }
                     else {
@@ -159,11 +159,11 @@ public class ToDoRecyclerViewAdapter extends
                         TextView alarmLabel = (TextView) view.findViewById(R.id.detailed_to_do_alarm_label);
                         TextView alarmDate = (TextView) view.findViewById(R.id.detailed_to_do_alarm_time);
                         ImageButton button1 = (ImageButton) view.findViewById(R.id.detailed_to_do_alarm_cancel);
-                        textView.setText(mSubjects.get(position).Task);
+                        textView.setText(mSubjects.get(holder.getAdapterPosition()).Task);
 
                         final AlertDialog dialog = new AlertDialog.Builder(parentActivity)
                                 .setView(view).setPositiveButton("Ok", null).create();
-                        if(mSubjects.get(position).Date.equals(""))
+                        if(mSubjects.get(holder.getAdapterPosition()).Date.equals(""))
                         {
                             button.setVisibility(View.VISIBLE);
                             alarmLabel.setVisibility(View.VISIBLE);
@@ -172,7 +172,7 @@ public class ToDoRecyclerViewAdapter extends
                             button.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
+                                    parentActivity.createEditTextAlert();
                                 }
                             });
                         }
@@ -183,7 +183,7 @@ public class ToDoRecyclerViewAdapter extends
                             alarmLabel.setVisibility(View.GONE);
                             alarmDate.setVisibility(View.VISIBLE);
                             button1.setVisibility(View.VISIBLE);
-                            alarmDate.setText(dateFormat.format(new Date(mSubjects.get(position).Date)));
+                            alarmDate.setText(dateFormat.format(new Date(mSubjects.get(holder.getAdapterPosition()).Date)));
                             button1.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {

@@ -21,10 +21,12 @@ import java.util.List;
             RecyclerView.Adapter<MarksAdapter.ViewHolder> {
 
         private List<Subject> mSubjects;
+        MainActivity parentActivity;
 
         // Pass in the contact array into the constructor
-        public MarksAdapter(List<Subject> subjects) {
+        public MarksAdapter(List<Subject> subjects,MainActivity parentActivity) {
             mSubjects = subjects;
+            this.parentActivity = parentActivity;
         }
 
         @Override
@@ -45,7 +47,7 @@ import java.util.List;
             holder.nameTextView.setText(subject.SubjName);
 
             holder.marksList.setLayoutManager(new LinearLayoutManager(null,LinearLayoutManager.HORIZONTAL,false));
-            holder.marksList.setAdapter(new InnerMarksAdapter(subject.Marks,holder.itemView.getContext()));
+            holder.marksList.setAdapter(new InnerMarksAdapter(subject.Marks,holder.itemView.getContext(),parentActivity));
         }
 
         @Override

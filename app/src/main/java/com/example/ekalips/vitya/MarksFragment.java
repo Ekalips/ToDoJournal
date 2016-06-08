@@ -66,7 +66,7 @@ RecyclerView recyclerView;
 
 
 
-        recyclerView.setAdapter(new MarksAdapter(subjects));
+        recyclerView.setAdapter(new MarksAdapter(subjects, (MainActivity) getActivity()));
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return rootView;
     }

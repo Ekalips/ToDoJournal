@@ -1,8 +1,14 @@
 package com.example.ekalips.vitya;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +35,36 @@ public class EnterActivity extends AppCompatActivity {
         {
                 startActivity(new Intent(context,MainActivity.class));
         }
+
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_CONTACTS)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_CONTACTS,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            0);
+                }
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+
         final EditText nEditText = (EditText) findViewById(R.id.nameEditText);
         final EditText sEditText = (EditText) findViewById(R.id.surNameEditText);
         Button btn = (Button) findViewById(R.id.loginBtn);
@@ -45,10 +81,18 @@ public class EnterActivity extends AppCompatActivity {
                         PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, "Viktor", "Ternoviy").getJSONObject(0).getInt("ID"),context);
                     } catch (JSONException e) {
                         e.printStackTrace();
+                    } catch (SQLiteCantOpenDatabaseException e)
+                    {
+                        Intent intent = new Intent(context,MainActivity.class);
+                        intent.putExtra("Name",nEditText.getText().toString());
+                        intent.putExtra("SName",sEditText.getText().toString());
+                        startActivity(intent);
                     }
                     Log.d("PrefsEnter", PrefsHandler.getString("Name",context)+ "   " + PrefsHandler.getString("SName",context)+ "   " + PrefsHandler.getInt("ID",-1,context));
-
-                    startActivity(new Intent(context,MainActivity.class));
+                    Intent intent = new Intent(context,MainActivity.class);
+                    //intent.putExtra("Name",nEditText.getText().toString());
+                    //intent.putExtra("SName",sEditText.getText().toString());
+                    startActivity(intent);
                 }
             }
         });

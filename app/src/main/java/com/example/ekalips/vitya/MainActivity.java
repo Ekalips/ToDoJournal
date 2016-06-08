@@ -51,6 +51,8 @@ import com.google.android.gms.drive.DriveResource;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
 
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         context = this;
         Log.d("Prefs", PrefsHandler.getString("Name", context) + "   " + PrefsHandler.getString("SName", context) + "   " + PrefsHandler.getInt("ID", -1, context));
+
 
 
 
@@ -235,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        Log.d("DRIVE","Someresult1   " + requestCode + "    " + (requestCode == RESULT_OK));
+        Log.d("DRIVE","Someresult1   " + requestCode + "    " + (resultCode == RESULT_OK));
 
         switch (requestCode) {
             case 14:
@@ -280,6 +283,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     File file = new File(Environment.getExternalStorageDirectory(), "SECRETDOCUMENTS");
                     copyInputStreamToFile(contents.getInputStream(),file);
                     PrefsHandler.setString("Journal",file.getAbsolutePath(),context);
+                    if (getIntent().getStringExtra("Name") != null || PrefsHandler.getInt("ID",-1,context) == -1) {
+                        try {
+                            PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, "Viktor", "Ternoviy").getJSONObject(0).getInt("ID"),context);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     if (viewPagerAdapter==null) {SetupViewPager(viewPager);tabLayout.setupWithViewPager(viewPager);}
 
 

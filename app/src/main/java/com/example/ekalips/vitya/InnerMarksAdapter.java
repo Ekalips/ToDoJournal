@@ -25,11 +25,13 @@ public class InnerMarksAdapter extends
 
     private List<Mark> mSubjects;
     Context context;
+    MainActivity parentActivity;
     // Pass in the contact array into the constructor
-    public InnerMarksAdapter(List<Mark> subjects, Context context) {
+    public InnerMarksAdapter(List<Mark> subjects, Context context, MainActivity parentAct) {
         mSubjects = subjects;
         Log.d("mSubjects",subjects.toString());
         this.context = context;
+        parentActivity = parentAct;
     }
 
     @Override
@@ -61,7 +63,7 @@ public class InnerMarksAdapter extends
                     builder.setNeutralButton("Set reminder", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
+                            parentActivity.createEditTextAlert();
                         }
                     });
                 }
