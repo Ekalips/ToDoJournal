@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         viewPager = (ViewPager) findViewById(R.id.viewpager);
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         mHelper = new TaskDBHelper(this);
 
@@ -131,10 +131,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         viewPagerAdapter.addFragment(toDoFragment, "ToDo");
         viewPagerAdapter.addFragment(new MarksFragment(), "Marks");
-        if (SQLiteHelper.CheckForBadMarks(PrefsHandler.getInt("ID",-1,this),this).length() > 0)
-        {
-            viewPagerAdapter.addFragment(new BadMarksFragment(), "Bad marks");
-        }
         viewPager.setAdapter(viewPagerAdapter);
 
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -164,13 +160,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onBackPressed()
     {
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("ID",-1);
-        editor.putBoolean("IsLoggedIn",false);
-        editor.putString("Name", null);
-        editor.putString("SName", null);
-        editor.apply();
+        PrefsHandler.setBool("IsLoggedIn",false,context);
+        PrefsHandler.setInt("ID",-1,context);
+        PrefsHandler.setString("Name", "",context);
+        PrefsHandler.setString("SName", "", context);
         super.onBackPressed();
     }
 
@@ -244,7 +237,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             case 14:
                 if (resultCode == RESULT_OK) {
                     mGoogleApiClient.connect();
-                } else Log.d("Connection", "FAILED2");
+                } else {Log.d("Connection", "FAILED2");
+                Toast.makeText(this,"Connection error",Toast.LENGTH_LONG).show();}
                 break;
             case 13:
                 if (resultCode == RESULT_OK) {
@@ -283,15 +277,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     File file = new File(Environment.getExternalStorageDirectory(), "SECRETDOCUMENTS");
                     copyInputStreamToFile(contents.getInputStream(),file);
                     PrefsHandler.setString("Journal",file.getAbsolutePath(),context);
-                    if (getIntent().getStringExtra("Name") != null || PrefsHandler.getInt("ID",-1,context) == -1) {
+                    if (!PrefsHandler.getBoolean("IsLoggedIn",false,context)) {
                         try {
-                            PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, "Viktor", "Ternoviy").getJSONObject(0).getInt("ID"),context);
+                            //PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, "Viktor", "Ternoviy").getJSONObject(0).getInt("ID"),context);
+                            PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, getIntent().getStringExtra("Name").trim(), getIntent().getStringExtra("SName").trim()).getJSONObject(0).getInt("ID"),context);
+                            PrefsHandler.setBool("IsLoggedIn",true,context); PrefsHandler.setBool("IsTeacher",false,context);
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            try {
+                                PrefsHandler.setInt("ID", SQLiteHelper.FindTeacherID(context, getIntent().getStringExtra("TeacherName").trim(), getIntent().getStringExtra("TeacherSName").trim()).getJSONObject(0).getInt("TeacherID"), context);
+                                PrefsHandler.setBool("IsTeacher", true, context);
+                                PrefsHandler.setInt("TeacherSubjID", SQLiteHelper.FindTeacherID(context, getIntent().getStringExtra("TeacherName").trim(), getIntent().getStringExtra("TeacherSName").trim()).getJSONObject(0).getInt("TeacherSubjID"), context);
+                                PrefsHandler.setBool("IsLoggedIn", true, context);
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                                Toast.makeText(context, "Error logging in", Toast.LENGTH_LONG).show();
+                                PrefsHandler.setBool("IsLoggedIn",false,context);
+                            }
                         }
                     }
                     if (viewPagerAdapter==null) {SetupViewPager(viewPager);tabLayout.setupWithViewPager(viewPager);}
-
 
                 }
             };
@@ -328,7 +333,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Log.d("DRIVE","File is already pinned");
                 return;
             }
+            if (PrefsHandler.getBoolean("IsTeacher",false,context) && result.getMetadata().isEditable()) Toast.makeText(context,"Hello,teacher!",Toast.LENGTH_LONG).show();
+            {
 
+            }
             DriveFile file = mFileId.asDriveFile();
             MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
              //       .setPinned(false)

@@ -34,8 +34,7 @@ RecyclerView recyclerView;
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        //Log.d("MARKS",SQLiteHelper.GetMarksByID(getContext(), PrefsHandler.getInt("ID",-1,getContext())).toString());
-        //JSONArray array = SQLiteHelper.GetMarksByID(getContext(), PrefsHandler.getInt("ID",-1,getContext()));
+
         View rootView = inflater.inflate(R.layout.fragment_marks, container, false);
         JSONArray subjectsJSON = SQLiteHelper.GetSubjects(getContext());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view_marks_list);
@@ -49,7 +48,8 @@ RecyclerView recyclerView;
             }
         }
         try {
-        for (Subject s :
+        if(!PrefsHandler.getBoolean("IsTeacher",false,getContext()))
+            for (Subject s :
                 subjects) {
             //Log.d("marks", SQLiteHelper.GetSubjMarksByID(getContext(),PrefsHandler.getInt("ID",-1,getContext()),s.SubjID).toString());
             JSONArray temp = SQLiteHelper.GetSubjMarksByID(PrefsHandler.getInt("ID",-1,getContext()),s.SubjID,getContext());

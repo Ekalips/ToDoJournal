@@ -22,6 +22,18 @@ public class SQLiteHelper
         return getResults(searchQ,context);
     }
 
+    public static JSONArray FindTeacherID(Context context,String name, String sName)
+    {
+        String searchQ ="SELECT TeacherID,TeacherSubjID FROM teachers WHERE TeacherName = " + " \"" + name + "\" AND TeacherSName = \""+ sName + "\"";
+        return getResults(searchQ,context);
+    }
+
+    public static JSONArray GetStudents(Context context)
+    {
+        String searchQ ="SELECT * FROM students";
+        return getResults(searchQ,context);
+    }
+
     public  static JSONArray GetMarksByID(Context context,int id)
     {
         String searchQ = context.getResources().getString(R.string.get_marks) + id;
@@ -72,7 +84,7 @@ public class SQLiteHelper
                     {
                         if( cursor.getString(i) != null )
                         {
-                            Log.d("TAG_NAME", cursor.getString(i) );
+                            Log.d("JSON_RESSULTS", cursor.getString(i) );
                             rowObject.put(cursor.getColumnName(i) ,  cursor.getString(i) );
                         }
                         else
@@ -82,7 +94,7 @@ public class SQLiteHelper
                     }
                     catch( Exception e )
                     {
-                        Log.d("TAG_NAME", e.getMessage()  );
+                        Log.d("JSON_RESSULTS_ERROR", e.getMessage()  );
                     }
                 }
             }

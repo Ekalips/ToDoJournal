@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -73,19 +74,40 @@ public class EnterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!nEditText.getText().toString().isEmpty() && !sEditText.getText().toString().isEmpty())
                 {
-                    PrefsHandler.setBool("IsLoggedIn",true,context);
                     PrefsHandler.setString("Name", nEditText.getText().toString(),context);
                     PrefsHandler.setString("SName", sEditText.getText().toString(),context);
                     try {
-                        Log.d("ID", String.valueOf(SQLiteHelper.FindID(context, "Viktor", "Ternoviy").getJSONObject(0).getInt("ID")));
-                        PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, "Viktor", "Ternoviy").getJSONObject(0).getInt("ID"),context);
+                        Log.d("ID", String.valueOf(SQLiteHelper.FindID(context, nEditText.getText().toString().trim(), sEditText.getText().toString().trim()).getJSONObject(0).getInt("ID")));
+                        PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, nEditText.getText().toString().trim(), sEditText.getText().toString().trim()).getJSONObject(0).getInt("ID"),context);
+                        PrefsHandler.setBool("IsLoggedIn",true,context); PrefsHandler.setBool("IsTeacher",false,context);
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        try {
+                            PrefsHandler.setInt("ID",SQLiteHelper.FindTeacherID(context, nEditText.getText().toString().trim(), sEditText.getText().toString().trim()).getJSONObject(0).getInt("TeacherID"),context);
+                            PrefsHandler.setBool("IsTeacher", true,context);
+                            PrefsHandler.setInt("TeacherSubjID", SQLiteHelper.FindTeacherID(context, nEditText.getText().toString().trim(), sEditText.getText().toString().trim()).getJSONObject(0).getInt("TeacherSubjID"),context);
+                            PrefsHandler.setBool("IsLoggedIn",true,context);
+                            Log.d("IDTeacher", String.valueOf(SQLiteHelper.FindTeacherID(context, nEditText.getText().toString().trim(), sEditText.getText().toString().trim()).getJSONObject(0).getInt("TeacherID")));
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                            Toast.makeText(context,"Loggin error",Toast.LENGTH_SHORT).show();
+                            Log.d("Loggin","LOGGIN ERROR");
+                            return;
+                        } catch (SQLiteException ex)
+                        {
+                            PrefsHandler.setBool("IsLoggedIn",false,context);
+                            Intent intent = new Intent(context,MainActivity.class);
+                            intent.putExtra("Name",nEditText.getText().toString());
+                            intent.putExtra("SName",sEditText.getText().toString());
+                            startActivity(intent);
+                        }
+
                     } catch (SQLiteCantOpenDatabaseException e)
                     {
                         Intent intent = new Intent(context,MainActivity.class);
                         intent.putExtra("Name",nEditText.getText().toString());
                         intent.putExtra("SName",sEditText.getText().toString());
+                        PrefsHandler.setBool("IsLoggedIn",false,context);
                         startActivity(intent);
                     }
                     Log.d("PrefsEnter", PrefsHandler.getString("Name",context)+ "   " + PrefsHandler.getString("SName",context)+ "   " + PrefsHandler.getInt("ID",-1,context));
