@@ -17,4 +17,17 @@
         <item>In 3 hours</item>
         <item>Set time</item>
     </string-array>
+
+    <string-array name="marks_spinner">
+        <item>Choose mark</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>Н</item>
+    </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

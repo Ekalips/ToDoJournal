@@ -9,23 +9,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="24dp"
+    android:layout_marginBottom="16dp"
     android:layout_marginLeft="16dp">
-
-    <TextView
-        android:id="@+id/subject_name"
-        android:layout_height="wrap_content"
-        android:text="huy"
-        android:layout_weight="1"
-        android:layout_marginBottom="8dp"
-        android:layout_width="match_parent"
-        android:textColor="#000"
-        />
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginRight="8dp"
+            android:id="@+id/circle_image_view"/>
+        <TextView
+            android:id="@+id/subject_name"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_weight="1"
+            android:textSize="22sp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_width="match_parent"
+            android:textColor="#000"
+        />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#ECEFF1"/>
+        android:id="@+id/line_separator"
+        android:background="@color/divider"
+        android:orientation="horizontal" />
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

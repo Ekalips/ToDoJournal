@@ -5,10 +5,20 @@ package com.example.ekalips.vitya;
  */
 
 public class Student {
+
     String Name,SName;
     int ID;
+    int Mark;
     public Student(String name,String sName, int id)
     {
-        Name = name; SName = sName; ID = id;
+        Name = name; SName = sName; ID = id; Mark = 0;
+    }
+    public void setMark(int mark)
+    {
+        Mark = mark;
+    }
+    public boolean haveMark()
+    {
+        return Mark!=0;
     }
 }

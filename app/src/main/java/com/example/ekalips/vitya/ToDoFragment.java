@@ -1,17 +1,9 @@
 package com.example.ekalips.vitya;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -19,14 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.CompoundButton;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.ekalips.vitya.ToDoRecyclerView.OnStartDragListener;
 import com.example.ekalips.vitya.ToDoRecyclerView.SimpleItemTouchHelperCallback;
@@ -34,15 +18,8 @@ import com.example.ekalips.vitya.ToDoRecyclerView.ToDoRecyclerViewAdapter;
 import com.example.ekalips.vitya.db.TaskContract;
 import com.example.ekalips.vitya.db.TaskDBHelper;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.zip.Inflater;
 
 
 public class ToDoFragment extends Fragment implements OnStartDragListener
@@ -77,7 +54,7 @@ public class ToDoFragment extends Fragment implements OnStartDragListener
         {
             SQLiteDatabase db = mHelper.getWritableDatabase();
             db.close();
-            PrefsHandler.setBool("TableCr",true,getContext());
+            PrefsHandler.setBoolean("TableCr",true,getContext());
         }
 
         ToDoRecyclerViewAdapter adapter = new ToDoRecyclerViewAdapter(Tasks,mHelper,this,(MainActivity) getActivity());

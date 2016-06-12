@@ -7,9 +7,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -54,6 +54,7 @@ import com.google.android.gms.drive.OpenFileActivityBuilder;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private Context context;
+    public DriveContents contents;
     GoogleApiClient mGoogleApiClient;
     TaskDBHelper mHelper;
     ViewPagerAdapter viewPagerAdapter;
@@ -130,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         toDoFragment = new ToDoFragment();
 
         viewPagerAdapter.addFragment(toDoFragment, "ToDo");
-        viewPagerAdapter.addFragment(new MarksFragment(), "Marks");
+        viewPagerAdapter.addFragment(new MarksFragmentHolder(), "Marks");
         viewPager.setAdapter(viewPagerAdapter);
 
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -160,11 +162,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onBackPressed()
     {
-        PrefsHandler.setBool("IsLoggedIn",false,context);
-        PrefsHandler.setInt("ID",-1,context);
-        PrefsHandler.setString("Name", "",context);
-        PrefsHandler.setString("SName", "", context);
-        super.onBackPressed();
+        if (!PrefsHandler.getBoolean("TeacherSelected",false,context)) {
+            PrefsHandler.setBoolean("IsLoggedIn", false, context);
+            PrefsHandler.setInt("ID", -1, context);
+            PrefsHandler.setString("Name", "", context);
+            PrefsHandler.setString("SName", "", context);
+            super.onBackPressed();
+        }
+        else
+        {
+            if (PrefsHandler.getBoolean("IsTeacher",false,context)) {
+                FragmentManager manager = getSupportFragmentManager();
+                manager.popBackStackImmediate("InitialMarksList", 0);
+                PrefsHandler.setBoolean("TeacherSelected", false, context);
+            }
+        }
+
     }
 
 
@@ -271,28 +284,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     }
                     Log.d("FILE","GetSome");
 
-                    DriveContents contents = result.getDriveContents();
+                    contents = result.getDriveContents();
                     //BufferedReader reader = new BufferedReader(new InputStreamReader(contents.getInputStream()));
                     StringBuilder builder = new StringBuilder();
                     File file = new File(Environment.getExternalStorageDirectory(), "SECRETDOCUMENTS");
-                    copyInputStreamToFile(contents.getInputStream(),file);
+                    ParcelFileDescriptor descriptor= contents.getParcelFileDescriptor();
+                    InputStream inputStream = new FileInputStream(descriptor.getFileDescriptor());
+                    copyInputStreamToFile( inputStream,file);
                     PrefsHandler.setString("Journal",file.getAbsolutePath(),context);
                     if (!PrefsHandler.getBoolean("IsLoggedIn",false,context)) {
                         try {
                             //PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, "Viktor", "Ternoviy").getJSONObject(0).getInt("ID"),context);
                             PrefsHandler.setInt("ID",SQLiteHelper.FindID(context, getIntent().getStringExtra("Name").trim(), getIntent().getStringExtra("SName").trim()).getJSONObject(0).getInt("ID"),context);
-                            PrefsHandler.setBool("IsLoggedIn",true,context); PrefsHandler.setBool("IsTeacher",false,context);
+                            PrefsHandler.setBoolean("IsLoggedIn",true,context); PrefsHandler.setBoolean("IsTeacher",false,context);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             try {
                                 PrefsHandler.setInt("ID", SQLiteHelper.FindTeacherID(context, getIntent().getStringExtra("TeacherName").trim(), getIntent().getStringExtra("TeacherSName").trim()).getJSONObject(0).getInt("TeacherID"), context);
-                                PrefsHandler.setBool("IsTeacher", true, context);
+                                PrefsHandler.setBoolean("IsTeacher", true, context);
                                 PrefsHandler.setInt("TeacherSubjID", SQLiteHelper.FindTeacherID(context, getIntent().getStringExtra("TeacherName").trim(), getIntent().getStringExtra("TeacherSName").trim()).getJSONObject(0).getInt("TeacherSubjID"), context);
-                                PrefsHandler.setBool("IsLoggedIn", true, context);
+                                PrefsHandler.setBoolean("IsLoggedIn", true, context);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                                 Toast.makeText(context, "Error logging in", Toast.LENGTH_LONG).show();
-                                PrefsHandler.setBool("IsLoggedIn",false,context);
+                                PrefsHandler.setBoolean("IsLoggedIn",false,context);
                             }
                         }
                     }
@@ -315,6 +330,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             e.printStackTrace();
         }
     }
+
+
 
     final ResultCallback<DriveResource.MetadataResult> metadataCallback = new ResultCallback<DriveResource.MetadataResult>() {
         @Override
@@ -343,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .build();
             file.updateMetadata(mGoogleApiClient, changeSet)
                     .setResultCallback(pinningCallback);
-            file.open(mGoogleApiClient,DriveFile.MODE_READ_ONLY,listener).setResultCallback(contentsOpenedCallback);
+            file.open(mGoogleApiClient,DriveFile.MODE_READ_WRITE,listener).setResultCallback(contentsOpenedCallback);
         }
     };
 

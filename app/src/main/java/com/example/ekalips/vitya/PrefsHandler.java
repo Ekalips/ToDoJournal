@@ -23,7 +23,7 @@ public class PrefsHandler {
         editor.apply();
     }
 
-    public static void setBool(String key, boolean value, Context context) {
+    public static void setBoolean(String key, boolean value, Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(key, value);

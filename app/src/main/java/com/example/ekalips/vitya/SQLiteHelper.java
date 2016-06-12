@@ -59,6 +59,21 @@ public class SQLiteHelper
 
     }
 
+    public static void AddMark(int StudentID,int Mark, int SubjectID, String Theme, String Date, Context context)
+    {
+        String requestQ = "INSERT INTO marks (IDStud,IDSubj,Mark,Theme,'Date') VALUES (" + StudentID + ", " + SubjectID + ", " + Mark+ ", '" + Theme+ "', '" + Date +"' );";
+        executeSQL(requestQ,context);
+    }
+
+    public static void executeSQL(String reqestQ,Context context)
+    {
+        String myPath = Environment.getExternalStorageDirectory() + "/SECRETDOCUMENTS";// Set path to your database
+
+        SQLiteDatabase myDataBase = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);
+        myDataBase.execSQL(reqestQ);
+    }
+
+
     public static JSONArray getResults(String seqrchQ, Context context)
     {
         String myPath = Environment.getExternalStorageDirectory() + "/SECRETDOCUMENTS";// Set path to your database
