@@ -109,7 +109,7 @@ public class TeachersRecyclerViewAdapter extends
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if (!parent.getItemAtPosition(position).equals("Choose mark")) {
-                        if (position != 6) subject.setMark(position);
+                        if (position != 6 && position != 0) subject.setMark(position);
                         else subject.setMark(-1);
                     }
                 }

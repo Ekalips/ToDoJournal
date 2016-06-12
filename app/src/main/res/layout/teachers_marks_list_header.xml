@@ -2,8 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
-    <EditText
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <android.support.design.widget.TextInputEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -11,7 +14,12 @@
         android:id="@+id/teachers_marks_list_header_theme"
         android:hint="Theme"
         android:singleLine="true" />
-    <EditText
+    </android.support.design.widget.TextInputLayout>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <android.support.design.widget.TextInputEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -19,4 +27,5 @@
         android:id="@+id/teachers_marks_list_header_date"
         android:hint="Date"
         android:singleLine="true" />
+    </android.support.design.widget.TextInputLayout>
 </LinearLayout>

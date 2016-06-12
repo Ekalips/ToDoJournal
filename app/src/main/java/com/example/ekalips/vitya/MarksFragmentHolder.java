@@ -30,7 +30,7 @@ public class MarksFragmentHolder extends Fragment {
         super.onCreate(savedInstanceState);
 
     }
-
+    Fragment marksListFragment;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -38,8 +38,8 @@ public class MarksFragmentHolder extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_marks_fragment_holder, container, false);
 
-        Fragment marksListFragment = new MarksFragment();
-        Fragment teachersMarksListFragment = new TeachersMarkFragment();
+        marksListFragment = new MarksFragment();
+
 
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.marks_fragment_holder,marksListFragment);
@@ -47,7 +47,10 @@ public class MarksFragmentHolder extends Fragment {
         transaction.commit();
         return rootView;
     }
-
+    public void Update()
+    {
+        ((MarksFragment)marksListFragment).Update();
+    }
 
 
 }

@@ -49,8 +49,6 @@
         fab:fab_addButtonColorNormal="@color/white"
         fab:fab_addButtonColorPressed="@color/white_pressed"
         fab:fab_addButtonPlusIconColor="@color/half_black"
-        fab:fab_labelStyle="@style/menu_labels_style"
-        fab:fab_labelsPosition="left"
         android:layout_gravity="end|bottom"
         android:layout_alignParentRight="true">
 
@@ -60,6 +58,7 @@
             android:id="@+id/fab_menu_add_todo"
             fab:fab_colorNormal="@color/white"
             fab:fab_title="Add ToDo"
+            fab:fab_icon="@drawable/add_todo"
             fab:fab_colorPressed="@color/white_pressed"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
@@ -68,6 +67,7 @@
             android:id="@+id/fab_menu_add_todo_list"
             fab:fab_colorNormal="@color/white"
             fab:fab_title="Add ToDo list"
+            fab:fab_icon="@drawable/add_list"
             fab:fab_colorPressed="@color/white_pressed"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>

@@ -36,8 +36,16 @@ RecyclerView recyclerView;
 
 
         View rootView = inflater.inflate(R.layout.fragment_marks, container, false);
-        JSONArray subjectsJSON = SQLiteHelper.GetSubjects(getContext());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view_marks_list);
+
+        Update();
+
+        return rootView;
+    }
+
+    public List<Subject> Update()
+    {
+        JSONArray subjectsJSON = SQLiteHelper.GetSubjects(getContext());
         List<Subject> subjects = new ArrayList<>();
         for (int i = 0;i < subjectsJSON.length();i++)
         {
@@ -48,29 +56,29 @@ RecyclerView recyclerView;
             }
         }
         try {
-        if(!PrefsHandler.getBoolean("IsTeacher",false,getContext()))
-            for (Subject s :
-                subjects) {
-            //Log.d("marks", SQLiteHelper.GetSubjMarksByID(getContext(),PrefsHandler.getInt("ID",-1,getContext()),s.SubjID).toString());
-            JSONArray temp = SQLiteHelper.GetSubjMarksByID(PrefsHandler.getInt("ID",-1,getContext()),s.SubjID,getContext());
-            for (int i = 0;i < temp.length();i++)
-            {
+            if(!PrefsHandler.getBoolean("IsTeacher",false,getContext()))
+                for (Subject s :
+                        subjects) {
+                    //Log.d("marks", SQLiteHelper.GetSubjMarksByID(getContext(),PrefsHandler.getInt("ID",-1,getContext()),s.SubjID).toString());
+                    JSONArray temp = SQLiteHelper.GetSubjMarksByID(PrefsHandler.getInt("ID",-1,getContext()),s.SubjID,getContext());
+                    for (int i = 0;i < temp.length();i++)
+                    {
+                        s.Marks.add(new Mark(temp.getJSONObject(i).getInt("Mark"),temp.getJSONObject(i).getString("Date"),temp.getJSONObject(i).getString("Theme")));
 
-                    s.Marks.add(new Mark(temp.getJSONObject(i).getInt("Mark"),temp.getJSONObject(i).getString("Date"),temp.getJSONObject(i).getString("Theme")));
-
-            }
-        }
+                    }
+                }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
-
-        recyclerView.setAdapter(new MarksAdapter(subjects, (MainActivity) getActivity()));
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        return rootView;
+        if (recyclerView.getAdapter()==null || recyclerView.getLayoutManager()==null) {
+            recyclerView.setAdapter(new MarksAdapter(subjects, (MainActivity) getActivity()));
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        }
+        else {
+            ((MarksAdapter)recyclerView.getAdapter()).updateDataSet(subjects);
+        }
+        return subjects;
     }
-
 
 
 }

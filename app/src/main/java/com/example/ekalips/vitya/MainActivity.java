@@ -1,5 +1,6 @@
 package com.example.ekalips.vitya;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
@@ -23,6 +24,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
@@ -162,20 +165,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onBackPressed()
     {
-        if (!PrefsHandler.getBoolean("TeacherSelected",false,context)) {
-            PrefsHandler.setBoolean("IsLoggedIn", false, context);
-            PrefsHandler.setInt("ID", -1, context);
-            PrefsHandler.setString("Name", "", context);
-            PrefsHandler.setString("SName", "", context);
-            super.onBackPressed();
-        }
-        else
-        {
+        if (PrefsHandler.getBoolean("TeacherSelected",false,context)) {
+
             if (PrefsHandler.getBoolean("IsTeacher",false,context)) {
                 FragmentManager manager = getSupportFragmentManager();
                 manager.popBackStackImmediate("InitialMarksList", 0);
                 PrefsHandler.setBoolean("TeacherSelected", false, context);
             }
+        }
+        else {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
 
     }
@@ -385,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     };
 
-
+    //Меню создания напоминания
     public void createEditTextAlert() {
         final Date date = new Date();
         ConstraintLayout view = (ConstraintLayout) getLayoutInflater().inflate(R.layout.to_do_alert_dialog, null);
@@ -460,7 +462,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     }
                     case 1: {
                         date.setHours(new Date().getHours());
-                        date.setMinutes(new Date().getMinutes()+3);
+                        date.setMinutes(new Date().getMinutes()+15);
                         date.setSeconds(new Date().getSeconds());
                         break;
                     }
@@ -568,6 +570,39 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return intent;
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                DriveFile file = mFileId.asDriveFile();
+                file.open(mGoogleApiClient,DriveFile.MODE_READ_ONLY,listener).setResultCallback(contentsOpenedCallback);
+
+                return true;
+
+            case R.id.action_exit:
+                PrefsHandler.setBoolean("IsLoggedIn", false, context);
+                PrefsHandler.setInt("ID", -1, context);
+                PrefsHandler.setString("Name", "", context);
+                PrefsHandler.setString("SName", "", context);
+                super.onBackPressed();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
 
     private class ViewPagerAdapter extends FragmentPagerAdapter

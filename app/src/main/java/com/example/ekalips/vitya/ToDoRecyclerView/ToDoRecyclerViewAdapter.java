@@ -59,8 +59,8 @@ public class ToDoRecyclerViewAdapter extends
         parentActivity = activity;
 
         button = new FloatingActionButton(parentActivity);
-        button.setColorNormal(Color.RED);
         button.setTitle("Delete");
+        button.setIcon(R.drawable.delete_todo);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,57 +207,6 @@ public class ToDoRecyclerViewAdapter extends
 
                 }
             });
-
-//        if (holder.selected) holder.itemView.setSelected(true);
-//        else holder.itemView.setSelected(false);
-
-
-//        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-//
-//            @Override
-//            public boolean onLongClick(View v) {
-//
-//                if (holder.selected) {
-//                    holder.cardView.setBackgroundColor(Color.TRANSPARENT);
-//                    selectedTasks.remove(mSubjects.get(position));
-//                    holder.selected = false;
-//                }
-//                else {
-//                    holder.cardView.setBackgroundColor(Color.GRAY);
-//                    selectedTasks.add(mSubjects.get(position));
-//                    holder.selected = true;
-//                }
-//
-//
-//
-//                return true;
-//            }
-//        });
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (holder.selected)
-//                {
-//                    holder.cardView.setBackgroundColor(Color.TRANSPARENT);
-//                    holder.selected = false;
-//                    selectedTasks.remove(mSubjects.get(position));
-//                }
-//                else if (selectedTasks.size() > 0)
-//                {
-//                    if (holder.selected) {
-//                        holder.cardView.setBackgroundColor(Color.TRANSPARENT);
-//                        selectedTasks.remove(mSubjects.get(position));
-//                        holder.selected = false;
-//                    }
-//                    else {
-//                        holder.cardView.setBackgroundColor(Color.GRAY);
-//                        selectedTasks.add(mSubjects.get(position));
-//                        holder.selected = true;
-//                    }
-//                }
-//            }
-//        });
-
     }
 
 

@@ -9,12 +9,16 @@
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/teachers_cancel_btn" />
+        android:id="@+id/teachers_cancel_btn"
+        android:textColor="@color/colorAccent"
+        style="?android:attr/borderlessButtonStyle" />
 
     <Button
         android:text="Apply"
         android:layout_weight="1"
         android:layout_width="match_parent"
+        android:background="@drawable/raised_button"
+        android:textColor="#fff"
         android:layout_height="wrap_content"
         android:id="@+id/teachers_apply_btn" />
 

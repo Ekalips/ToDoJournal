@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 /**
  * Created by ekalips on 5/26/16.
  */
-
+//Класс, который обрабатывает обращения к внутреним параметрам
 public class PrefsHandler {
     public static void setString(String key, String value, Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

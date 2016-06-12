@@ -5,44 +5,44 @@
     android:id="@+id/activity_enter"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="16dp"
     tools:context="com.example.ekalips.vitya.EnterActivity">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="Name"
-        android:ems="10"
-        tools:layout_editor_absoluteX="91dp"
-        tools:layout_editor_absoluteY="224dp"
-        android:id="@+id/nameEditText"
-        android:inputType="textCapSentences"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+    <android.support.design.widget.TextInputLayout
 
-    <EditText
-        android:layout_width="wrap_content"
+        android:id="@+id/input_layout_name"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Surname"
-        android:ems="10"
-        tools:layout_editor_absoluteX="91dp"
-        android:inputType="textCapSentences"
-        tools:layout_editor_absoluteY="289dp"
-        android:id="@+id/surNameEditText"
-        android:layout_marginTop="37dp"
-        android:layout_below="@+id/nameEditText"
-        android:layout_alignLeft="@+id/nameEditText"
-        android:layout_alignStart="@+id/nameEditText" />
+        android:layout_centerVertical="true">
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:id="@+id/nameEditText"
+            android:inputType="textCapSentences" />
+    </android.support.design.widget.TextInputLayout>
 
-    <Button
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_surname"
+        android:layout_width="match_parent"
+        android:layout_below="@id/input_layout_name"
+        android:layout_height="wrap_content">
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Surname"
+            android:inputType="textCapSentences"
+            android:id="@+id/surNameEditText" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.widget.Button
         android:text="Enter"
         android:layout_width="150dp"
+        android:layout_marginTop="36dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/surNameEditText"
-        android:layout_marginTop="49dp"
         android:id="@+id/loginBtn"
-        android:layout_alignRight="@+id/surNameEditText"
-        android:layout_alignEnd="@+id/surNameEditText"
-        android:layout_alignLeft="@+id/surNameEditText"
-        android:layout_alignStart="@+id/surNameEditText"
-        android:elevation="0dp" />
+        android:background="@drawable/raised_button"
+        android:textColor="#fff"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/input_layout_surname" />
 </RelativeLayout>
