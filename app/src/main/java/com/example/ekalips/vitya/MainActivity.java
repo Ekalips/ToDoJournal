@@ -422,17 +422,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 date.setDate(picker.getDayOfMonth());
                                 date.setMonth(picker.getMonth());
                                 date.setYear(picker.getYear() - 1900);
-                                if (Calendar.getInstance().getTime().compareTo(date) > 0) {
-                                    Toast.makeText(context, "WRONG DATE", Toast.LENGTH_LONG).show();
-                                    spinner1.setSelection(0,true);
-                                    Log.d("Date", "WRONG DATE");
-                                    date.setDate(Calendar.getInstance().getTime().getDay());
-                                    date.setMonth(Calendar.getInstance().getTime().getMonth());
-                                    date.setYear(Calendar.getInstance().getTime().getYear() - 1900);
-                                    return;
-                                }
-                                spinner1.setPrompt(dateFormat.format(date));
-
                             }
                         });
                         builder.setNegativeButton("Cancel", null);
@@ -488,14 +477,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         date.setMinutes(picker.getCurrentMinute());
                                         date.setHours(picker.getCurrentHour());
                                         date.setSeconds(0);
-                                        if (Calendar.getInstance().getTime().compareTo(date) > 0)
-                                        {
-                                            Toast.makeText(context,"WRONG TIME",Toast.LENGTH_LONG).show();
-                                            date.setMinutes(Calendar.getInstance().getTime().getMinutes());
-                                            date.setHours(Calendar.getInstance().getTime().getHours());
-                                            spinner2.setSelection(0,true);
-                                        }
-                                        spinner2.setPrompt(dateFormat.format(date));
                                     }
                                 }).setNegativeButton("Cancel", null)
                                 .create();
