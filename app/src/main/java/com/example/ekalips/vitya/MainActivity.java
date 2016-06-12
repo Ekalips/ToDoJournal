@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
 
     ToDoFragment toDoFragment;
+    MarksFragmentHolder marksFragmentHolder;
     private int pageIndex;
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     ViewPagerAdapter viewPagerAdapter;
     public FloatingActionsMenu floatingActionsMenu;
     private DriveId mFileId;
-    String ling = "0BxkYJF0YZNHbX1dXZ1ZFZldCVVU";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,9 +134,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         toDoFragment = new ToDoFragment();
-
+        marksFragmentHolder = new MarksFragmentHolder();
         viewPagerAdapter.addFragment(toDoFragment, "ToDo");
-        viewPagerAdapter.addFragment(new MarksFragmentHolder(), "Marks");
+        viewPagerAdapter.addFragment(marksFragmentHolder, "Marks");
         viewPager.setAdapter(viewPagerAdapter);
 
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 FragmentManager manager = getSupportFragmentManager();
                 manager.popBackStackImmediate("InitialMarksList", 0);
                 PrefsHandler.setBoolean("TeacherSelected", false, context);
+                Log.d("LOGS","TEACHER LOG OUT");
             }
         }
         else {
@@ -314,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         }
                     }
                     if (viewPagerAdapter==null) {SetupViewPager(viewPager);tabLayout.setupWithViewPager(viewPager);}
-
+                    else marksFragmentHolder.Update();
                 }
             };
 
@@ -529,7 +531,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     public void onClick(DialogInterface dialog, int which) {
                         String task = String.valueOf(taskEditText.getText());
                         Log.d("TASK", "Task to add: " + task);
-
+                        if (taskEditText.getText().toString().length() < 1) return;
                         SQLiteDatabase db = mHelper.getWritableDatabase();
                         ContentValues values = new ContentValues();
                         values.put(TaskContract.TaskEntry.COL_TASK_TITLE, task);
@@ -593,7 +595,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 PrefsHandler.setInt("ID", -1, context);
                 PrefsHandler.setString("Name", "", context);
                 PrefsHandler.setString("SName", "", context);
-                super.onBackPressed();
+                Log.d("LOGS","STUDENT LOG OUT2");
+                finish();
+                finish();
                 return true;
 
             default:
